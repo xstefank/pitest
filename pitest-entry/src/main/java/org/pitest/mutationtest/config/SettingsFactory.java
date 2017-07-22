@@ -1,12 +1,5 @@
 package org.pitest.mutationtest.config;
 
-import static org.pitest.functional.prelude.Prelude.not;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-
 import org.pitest.classpath.ClassPathByteArraySource;
 import org.pitest.coverage.CoverageExporter;
 import org.pitest.coverage.execute.CoverageOptions;
@@ -24,6 +17,7 @@ import org.pitest.mutationtest.build.DefaultMutationGrouperFactory;
 import org.pitest.mutationtest.build.DefaultTestPrioritiserFactory;
 import org.pitest.mutationtest.build.MutationGrouperFactory;
 import org.pitest.mutationtest.build.MutationInterceptorFactory;
+import org.pitest.mutationtest.build.NotGroupingMutationGrouperFactory;
 import org.pitest.mutationtest.build.TestPrioritiserFactory;
 import org.pitest.plugin.Feature;
 import org.pitest.plugin.FeatureParser;
@@ -39,6 +33,13 @@ import org.pitest.util.Glob;
 import org.pitest.util.PitError;
 import org.pitest.util.ResultOutputStrategy;
 import org.pitest.util.StringUtil;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+
+import static org.pitest.functional.prelude.Prelude.not;
 
 public class SettingsFactory {
 
@@ -88,7 +89,8 @@ public class SettingsFactory {
   public MutationGrouperFactory getMutationGrouper() {
     final Collection<? extends MutationGrouperFactory> groupers = this.plugins
         .findGroupers();
-    return firstOrDefault(groupers, new DefaultMutationGrouperFactory());
+
+    return firstOrDefault(groupers, options.getHigherOrderMutation() != null ? new NotGroupingMutationGrouperFactory() : new DefaultMutationGrouperFactory());
   }
   
   public void describeFeatures(SideEffect1<Feature> enabled, SideEffect1<Feature> disabled) {
