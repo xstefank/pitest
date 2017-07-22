@@ -320,6 +320,9 @@ public class AbstractPitMojo extends AbstractMojo {
   @Parameter(property = "plugin.artifactMap", readonly = true, required = true)
   private Map<String, Artifact>       pluginArtifactMap;
 
+  @Parameter(property = "higherOrderMutation")
+  private String                      higherOrderMutation;
+
   protected final GoalStrategy        goalStrategy;
 
   public AbstractPitMojo() {
@@ -583,10 +586,13 @@ public class AbstractPitMojo extends AbstractMojo {
   public ArrayList<String> getExcludedRunners() {
     return excludedRunners;
   }
-  
+
   public ArrayList<String> getFeatures() {
     return features;
   }
 
-  
+  public String getHigherOrderMutation() {
+    return higherOrderMutation;
+  }
+
 }

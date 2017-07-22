@@ -128,6 +128,8 @@ public class ReportOptions {
   
   private Collection<String>             excludedRunners                = new ArrayList<String>();
 
+  private String higherOrderMutation;
+
   public boolean isVerbose() {
     return this.verbose;
   }
@@ -564,6 +566,14 @@ public class ReportOptions {
     this.excludedRunners = excludedRunners;
   }
 
+  public String getHigherOrderMutation() {
+    return higherOrderMutation;
+  }
+
+  public void setHigherOrderMutation(String higherOrderMutation) {
+    this.higherOrderMutation = higherOrderMutation;
+  }
+
   @Override
   public String toString() {
     return "ReportOptions [targetClasses=" + targetClasses
@@ -588,8 +598,9 @@ public class ReportOptions {
         + ", coverageThreshold=" + coverageThreshold + ", mutationEngine="
         + mutationEngine + ", javaExecutable=" + javaExecutable
         + ", includeLaunchClasspath=" + includeLaunchClasspath
-        + ", properties=" + properties + ", maxSurvivors=" + maxSurvivors + ", excludedRunners=" + excludedRunners 
-        + ", features=" + features + "]";
+        + ", properties=" + properties + ", maxSurvivors=" + maxSurvivors + ", excludedRunners=" + excludedRunners
+        + ", features=" + features
+        + ", higherOrderMutation=" + higherOrderMutation + "]";
   }
   
 }

@@ -145,6 +145,8 @@ public class MojoToReportOptionsConverter {
     data.setJavaExecutable(this.mojo.getJavaExecutable());
     data.setFreeFormProperties(createPluginProperties());
 
+    data.setHigherOrderMutation(this.mojo.getHigherOrderMutation());
+
     return data;
   }
 
