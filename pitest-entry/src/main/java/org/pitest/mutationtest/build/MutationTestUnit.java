@@ -16,6 +16,7 @@ package org.pitest.mutationtest.build;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.logging.Logger;
 
 import org.pitest.classinfo.ClassName;
@@ -60,6 +61,11 @@ public class MutationTestUnit implements MutationAnalysisUnit {
   @Override
   public int priority() {
     return this.availableMutations.size();
+  }
+
+  @Override
+  public Collection<MutationDetails> getMutations() {
+    return Collections.unmodifiableCollection(availableMutations);
   }
 
   private void runTestsInSeperateProcess(final MutationStatusMap mutations)
