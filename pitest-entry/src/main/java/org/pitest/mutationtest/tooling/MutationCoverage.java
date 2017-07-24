@@ -40,6 +40,7 @@ import org.pitest.functional.Option;
 import org.pitest.functional.prelude.Prelude;
 import org.pitest.help.Help;
 import org.pitest.help.PitHelpError;
+import org.pitest.mutationtest.HigherOrderMutationTestBuilder;
 import org.pitest.mutationtest.HistoryStore;
 import org.pitest.mutationtest.ListenerArguments;
 import org.pitest.mutationtest.MutationAnalyser;
@@ -273,8 +274,8 @@ private int numberOfThreads() {
     MutationGrouper grouper = this.settings.getMutationGrouper().makeFactory(
         this.data.getFreeFormProperties(), this.code,
         this.data.getNumberOfThreads(), this.data.getMutationUnitSize());
-    final MutationTestBuilder builder = new MutationTestBuilder(wf, analyser,
-        source, grouper);
+    final MutationTestBuilder builder = data.isHigherOrderMutationEnabled() ? new HigherOrderMutationTestBuilder(wf, analyser,
+            source, grouper, data.getHigherOrderMutation()) : new MutationTestBuilder(wf, analyser, source, grouper);
 
     return builder.createMutationTestUnits(this.code.getCodeUnderTestNames());
   }

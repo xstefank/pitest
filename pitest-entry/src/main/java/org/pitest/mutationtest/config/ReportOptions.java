@@ -574,6 +574,10 @@ public class ReportOptions {
     this.higherOrderMutation = higherOrderMutation;
   }
 
+  public boolean isHigherOrderMutationEnabled() {
+    return getHigherOrderMutation() != null;
+  }
+
   @Override
   public String toString() {
     return "ReportOptions [targetClasses=" + targetClasses
@@ -602,5 +606,4 @@ public class ReportOptions {
         + ", features=" + features
         + ", higherOrderMutation=" + higherOrderMutation + "]";
   }
-  
 }

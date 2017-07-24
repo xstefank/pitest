@@ -17,7 +17,6 @@ import org.pitest.mutationtest.build.DefaultMutationGrouperFactory;
 import org.pitest.mutationtest.build.DefaultTestPrioritiserFactory;
 import org.pitest.mutationtest.build.MutationGrouperFactory;
 import org.pitest.mutationtest.build.MutationInterceptorFactory;
-import org.pitest.mutationtest.build.NotGroupingMutationGrouperFactory;
 import org.pitest.mutationtest.build.TestPrioritiserFactory;
 import org.pitest.plugin.Feature;
 import org.pitest.plugin.FeatureParser;
@@ -90,7 +89,7 @@ public class SettingsFactory {
     final Collection<? extends MutationGrouperFactory> groupers = this.plugins
         .findGroupers();
 
-    return firstOrDefault(groupers, options.getHigherOrderMutation() != null ? new NotGroupingMutationGrouperFactory() : new DefaultMutationGrouperFactory());
+    return firstOrDefault(groupers, new DefaultMutationGrouperFactory());
   }
   
   public void describeFeatures(SideEffect1<Feature> enabled, SideEffect1<Feature> disabled) {
