@@ -1,12 +1,12 @@
 package org.pitest.mutationtest.engine.hom;
 
-import org.pitest.mutationtest.engine.Mutant;
+import org.pitest.mutationtest.engine.MutationDetails;
 
 import java.util.Collection;
 
 /**
- * Transforms a collection of {@link Mutant}
- * into a collection of {@link HigherOrderMutant} by specific criteria
+ * Transforms a collection of {@link MutationDetails}
+ * into a collection of {@link HigherOrderMutationDetails} by specific criteria
  */
 public interface HigherOrderMutationStrategy {
 
@@ -15,6 +15,6 @@ public interface HigherOrderMutationStrategy {
      * @param firstOrderMutants FOM collection or null
      * @return collection of {@link HigherOrderMutant} or null
      */
-    Collection<HigherOrderMutant> processMutants(Collection<Mutant> firstOrderMutants);
+    Collection<HigherOrderMutationDetails> processMutants(Collection<MutationDetails> firstOrderMutants);
 
 }
