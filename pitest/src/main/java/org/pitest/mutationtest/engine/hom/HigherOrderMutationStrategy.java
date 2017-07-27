@@ -1,20 +1,21 @@
 package org.pitest.mutationtest.engine.hom;
 
 import org.pitest.mutationtest.engine.MutationDetails;
+import org.pitest.mutationtest.engine.MutationEngine;
 
-import java.util.Collection;
+import java.util.List;
 
 /**
- * Transforms a collection of {@link MutationDetails}
- * into a collection of {@link HigherOrderMutationDetails} by specific criteria
+ * Transforms a list of {@link MutationDetails}
+ * into a list of {@link AbstractHigherOrderMutationDetails} by specific criteria
  */
 public interface HigherOrderMutationStrategy {
 
     /**
-     * Processes first order mutants to create a collection of higher order mutants
-     * @param firstOrderMutants FOM collection or null
-     * @return collection of {@link HigherOrderMutant} or null
+     * Processes first order mutants to create a list of higher order mutants
+     * @param firstOrderMutants FOM list or null
+     * @return list of {@link HigherOrderMutant} or null
      */
-    Collection<HigherOrderMutationDetails> processMutants(Collection<MutationDetails> firstOrderMutants);
+    List<HigherOrderMutationDetails> processMutations(List<MutationDetails> firstOrderMutants, MutationEngine mutationEngine);
 
 }

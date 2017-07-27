@@ -12,12 +12,12 @@ import java.util.List;
 /**
  *
  */
-public abstract class HigherOrderMutationDetails {
+public abstract class AbstractHigherOrderMutationDetails implements HigherOrderMutationDetails {
 
     private List<MutationDetails> detailsList;
     private int size;
 
-    public HigherOrderMutationDetails(List<MutationDetails> detailsList, int size) {
+    public AbstractHigherOrderMutationDetails(List<MutationDetails> detailsList, int size) {
         assert detailsList.size() == size;
         this.size = size;
         this.detailsList = new ArrayList<MutationDetails>(detailsList);

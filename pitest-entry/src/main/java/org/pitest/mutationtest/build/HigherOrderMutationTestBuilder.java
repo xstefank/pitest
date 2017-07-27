@@ -1,14 +1,10 @@
-package org.pitest.mutationtest;
+package org.pitest.mutationtest.build;
 
 import org.pitest.classinfo.ClassName;
-import org.pitest.mutationtest.build.MutationAnalysisUnit;
-import org.pitest.mutationtest.build.MutationGrouper;
-import org.pitest.mutationtest.build.MutationSource;
-import org.pitest.mutationtest.build.MutationTestBuilder;
-import org.pitest.mutationtest.build.NotGroupingGrouper;
-import org.pitest.mutationtest.build.WorkerFactory;
+import org.pitest.mutationtest.MutationAnalyser;
+import org.pitest.mutationtest.MutationConfig;
 import org.pitest.mutationtest.engine.MutationDetails;
-import org.pitest.mutationtest.engine.hom.AbstractHigherOrderMutationDetails;
+import org.pitest.mutationtest.engine.hom.HigherOrderMutationDetails;
 import org.pitest.mutationtest.engine.hom.HigherOrderMutationStrategy;
 import org.pitest.mutationtest.engine.hom.HigherOrderMutationStrategyDefinition;
 
@@ -43,7 +39,7 @@ public class HigherOrderMutationTestBuilder extends MutationTestBuilder {
         List<MutationDetails> mutations = collectMutations(testUnits);
 
         HigherOrderMutationStrategy strategy = getStrategy(strategyId);
-        List<AbstractHigherOrderMutationDetails> higherOrderMutations = strategy.processMutations(mutations, mutationConfig);
+        List<HigherOrderMutationDetails> higherOrderMutations = strategy.processMutations(mutations, mutationConfig.getEngine());
 
         Collections.sort(higherOrderMutations, comparator());
 
@@ -71,11 +67,11 @@ public class HigherOrderMutationTestBuilder extends MutationTestBuilder {
         return strategyDefinition.getStrategy();
     }
 
-    private Comparator<AbstractHigherOrderMutationDetails> comparator() {
-        return new Comparator<AbstractHigherOrderMutationDetails>() {
+    private Comparator<HigherOrderMutationDetails> comparator() {
+        return new Comparator<HigherOrderMutationDetails>() {
             @Override
-            public int compare(AbstractHigherOrderMutationDetails o1, AbstractHigherOrderMutationDetails o2) {
-                return 0;
+            public int compare(HigherOrderMutationDetails o1, HigherOrderMutationDetails o2) {
+                return o1.getId().iterator().next().compareTo(o2.getId().iterator().next());
             }
         };
     }
