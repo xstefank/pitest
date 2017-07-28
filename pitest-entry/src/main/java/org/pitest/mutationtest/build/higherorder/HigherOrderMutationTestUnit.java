@@ -1,5 +1,7 @@
 package org.pitest.mutationtest.build.higherorder;
 
+import org.pitest.mutationtest.DetectionStatus;
+import org.pitest.mutationtest.HigherOrderMutationStatusMap;
 import org.pitest.mutationtest.MutationMetaData;
 import org.pitest.mutationtest.engine.hom.HigherOrderMutationDetails;
 import org.pitest.util.Log;
@@ -19,6 +21,13 @@ public class HigherOrderMutationTestUnit implements HigherOrderMutationAnalysisU
     @Override
     public MutationMetaData call() throws Exception {
         Log.getLogger().info("HigherOrderMutationTestUnit.call()");
+
+        final HigherOrderMutationStatusMap mutationsMap = new HigherOrderMutationStatusMap();
+
+        mutationsMap.setStatusForMutations(this.mutationDetails,
+                DetectionStatus.NOT_STARTED);
+
+
         return null;
     }
 

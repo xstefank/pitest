@@ -20,7 +20,7 @@ import org.pitest.mutationtest.engine.MutationDetails;
 
 import java.util.Map.Entry;
 
-public class MutationStatusMap extends AbstractMutationStatusMap<MutationDetails> {
+public class MutationStatusMap extends AbstractMutationStatusMap<MutationDetails, MutationResult> {
 
   @Override
   protected F<Entry<MutationDetails, MutationStatusTestPair>, MutationResult> detailsToMutationResults() {

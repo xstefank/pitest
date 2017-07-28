@@ -28,27 +28,32 @@ import java.util.Set;
 
 import static org.pitest.functional.prelude.Prelude.putToMap;
 
-public abstract class AbstractMutationStatusMap<T> {
+/**
+ *
+ * @param <K> key type of the mutation details
+ * @param <T> the result type
+ */
+public abstract class AbstractMutationStatusMap<K, T> {
 
-  private final Map<T, MutationStatusTestPair> mutationMap = new HashMap<T, MutationStatusTestPair>();
+  private final Map<K, MutationStatusTestPair> mutationMap = new HashMap<K, MutationStatusTestPair>();
 
-  public void setStatusForMutation(final T mutation,
+  public void setStatusForMutation(final K mutation,
       final DetectionStatus status) {
     this.setStatusForMutations(Collections.singleton(mutation), status);
   }
 
-  public void setStatusForMutation(final T mutation,
+  public void setStatusForMutation(final K mutation,
       final MutationStatusTestPair status) {
     this.mutationMap.put(mutation, status);
   }
 
   public void setStatusForMutations(
-      final Collection<T> mutations, final DetectionStatus status) {
+          final Collection<K> mutations, final DetectionStatus status) {
     FCollection.forEach(mutations,
         putToMap(this.mutationMap, new MutationStatusTestPair(0, status)));
   }
 
-  public List<MutationResult> createMutationResults() {
+  public List<T> createMutationResults() {
     return FCollection.map(this.mutationMap.entrySet(),
         detailsToMutationResults());
 
@@ -58,41 +63,41 @@ public abstract class AbstractMutationStatusMap<T> {
     return !getUnrunMutations().isEmpty();
   }
 
-  public Collection<T> getUnrunMutations() {
+  public Collection<K> getUnrunMutations() {
     return FCollection.filter(this.mutationMap.entrySet(),
         hasStatus(DetectionStatus.NOT_STARTED)).map(toMutationDetails());
   }
 
-  public Collection<T> getUnfinishedRuns() {
+  public Collection<K> getUnfinishedRuns() {
     return FCollection.filter(this.mutationMap.entrySet(),
         hasStatus(DetectionStatus.STARTED)).map(toMutationDetails());
   }
 
-  public Set<T> allMutations() {
+  public Set<K> allMutations() {
     return this.mutationMap.keySet();
   }
 
-  protected abstract F<Entry<T, MutationStatusTestPair>, MutationResult> detailsToMutationResults();
+  protected abstract F<Entry<K, MutationStatusTestPair>, T> detailsToMutationResults();
 
-  private F<Entry<T, MutationStatusTestPair>, T> toMutationDetails() {
-    return new F<Entry<T, MutationStatusTestPair>, T>() {
+  private F<Entry<K, MutationStatusTestPair>, K> toMutationDetails() {
+    return new F<Entry<K, MutationStatusTestPair>, K>() {
 
       @Override
-      public T apply(
-          final Entry<T, MutationStatusTestPair> a) {
+      public K apply(
+          final Entry<K, MutationStatusTestPair> a) {
         return a.getKey();
       }
 
     };
   }
 
-  private Predicate<Entry<T, MutationStatusTestPair>> hasStatus(
+  private Predicate<Entry<K, MutationStatusTestPair>> hasStatus(
       final DetectionStatus status) {
-    return new Predicate<Entry<T, MutationStatusTestPair>>() {
+    return new Predicate<Entry<K, MutationStatusTestPair>>() {
 
       @Override
       public Boolean apply(
-          final Entry<T, MutationStatusTestPair> a) {
+          final Entry<K, MutationStatusTestPair> a) {
         return a.getValue().getStatus().equals(status);
       }
 
