@@ -14,66 +14,16 @@
  */
 package org.pitest.mutationtest;
 
-import static org.pitest.functional.prelude.Prelude.putToMap;
-
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-
 import org.pitest.functional.F;
 import org.pitest.functional.FCollection;
-import org.pitest.functional.predicate.Predicate;
 import org.pitest.mutationtest.engine.MutationDetails;
 
-public class MutationStatusMap {
+import java.util.Map.Entry;
 
-  private final Map<MutationDetails, MutationStatusTestPair> mutationMap = new HashMap<MutationDetails, MutationStatusTestPair>();
+public class MutationStatusMap extends AbstractMutationStatusMap<MutationDetails> {
 
-  public void setStatusForMutation(final MutationDetails mutation,
-      final DetectionStatus status) {
-    this.setStatusForMutations(Collections.singleton(mutation), status);
-  }
-
-  public void setStatusForMutation(final MutationDetails mutation,
-      final MutationStatusTestPair status) {
-    this.mutationMap.put(mutation, status);
-  }
-
-  public void setStatusForMutations(
-      final Collection<MutationDetails> mutations, final DetectionStatus status) {
-    FCollection.forEach(mutations,
-        putToMap(this.mutationMap, new MutationStatusTestPair(0, status)));
-  }
-
-  public List<MutationResult> createMutationResults() {
-    return FCollection.map(this.mutationMap.entrySet(),
-        detailsToMutationResults());
-
-  }
-
-  public boolean hasUnrunMutations() {
-    return !getUnrunMutations().isEmpty();
-  }
-
-  public Collection<MutationDetails> getUnrunMutations() {
-    return FCollection.filter(this.mutationMap.entrySet(),
-        hasStatus(DetectionStatus.NOT_STARTED)).map(toMutationDetails());
-  }
-
-  public Collection<MutationDetails> getUnfinishedRuns() {
-    return FCollection.filter(this.mutationMap.entrySet(),
-        hasStatus(DetectionStatus.STARTED)).map(toMutationDetails());
-  }
-
-  public Set<MutationDetails> allMutations() {
-    return this.mutationMap.keySet();
-  }
-
-  private static F<Entry<MutationDetails, MutationStatusTestPair>, MutationResult> detailsToMutationResults() {
+  @Override
+  protected F<Entry<MutationDetails, MutationStatusTestPair>, MutationResult> detailsToMutationResults() {
     return new F<Entry<MutationDetails, MutationStatusTestPair>, MutationResult>() {
 
       @Override
@@ -85,34 +35,9 @@ public class MutationStatusMap {
     };
   }
 
-  private static F<Entry<MutationDetails, MutationStatusTestPair>, MutationDetails> toMutationDetails() {
-    return new F<Entry<MutationDetails, MutationStatusTestPair>, MutationDetails>() {
-
-      @Override
-      public MutationDetails apply(
-          final Entry<MutationDetails, MutationStatusTestPair> a) {
-        return a.getKey();
-      }
-
-    };
-  }
-
-  private static Predicate<Entry<MutationDetails, MutationStatusTestPair>> hasStatus(
-      final DetectionStatus status) {
-    return new Predicate<Entry<MutationDetails, MutationStatusTestPair>>() {
-
-      @Override
-      public Boolean apply(
-          final Entry<MutationDetails, MutationStatusTestPair> a) {
-        return a.getValue().getStatus().equals(status);
-      }
-
-    };
-  }
-
   public void markUncoveredMutations() {
     setStatusForMutations(
-        FCollection.filter(this.mutationMap.keySet(), hasNoCoverage()),
+        FCollection.filter(allMutations(), hasNoCoverage()),
         DetectionStatus.NO_COVERAGE);
 
   }
