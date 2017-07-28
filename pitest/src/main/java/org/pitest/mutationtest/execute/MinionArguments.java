@@ -14,24 +14,27 @@
  */
 package org.pitest.mutationtest.execute;
 
-import java.util.Collection;
-
 import org.pitest.classinfo.ClassName;
 import org.pitest.mutationtest.TimeoutLengthStrategy;
-import org.pitest.mutationtest.engine.MutationDetails;
 import org.pitest.mutationtest.engine.MutationEngine;
 import org.pitest.testapi.Configuration;
 
-public class MinionArguments {
+import java.util.Collection;
 
-  final Collection<MutationDetails> mutations;
+/**
+ *
+ * @param <T> the type of the contained mutation details
+ */
+public class MinionArguments<T> {
+
+  final Collection<T> mutations;
   final Collection<ClassName>       testClasses;
   final MutationEngine              engine;
   final TimeoutLengthStrategy       timeoutStrategy;
   final boolean                     verbose;
   final Configuration               pitConfig;
 
-  public MinionArguments(final Collection<MutationDetails> mutations,
+  public MinionArguments(final Collection<T> mutations,
       final Collection<ClassName> tests, final MutationEngine engine,
       final TimeoutLengthStrategy timeoutStrategy, final boolean verbose,
       final Configuration pitConfig) {

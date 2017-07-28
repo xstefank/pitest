@@ -21,4 +21,6 @@ public final class MutationResult extends AbstractMutationResult<MutationDetails
   public MutationResult(MutationDetails md, MutationStatusTestPair status) {
     super(md, status);
   }
+
+
 }

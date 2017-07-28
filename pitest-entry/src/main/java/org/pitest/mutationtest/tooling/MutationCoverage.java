@@ -47,7 +47,9 @@ import org.pitest.mutationtest.build.TestPrioritiser;
 import org.pitest.mutationtest.build.WorkerFactory;
 import org.pitest.mutationtest.config.ReportOptions;
 import org.pitest.mutationtest.config.SettingsFactory;
+import org.pitest.mutationtest.engine.MutationDetails;
 import org.pitest.mutationtest.engine.MutationEngine;
+import org.pitest.mutationtest.engine.hom.HigherOrderMutationDetails;
 import org.pitest.mutationtest.execute.MutationAnalysisExecutor;
 import org.pitest.mutationtest.incremental.DefaultCodeHistory;
 import org.pitest.mutationtest.incremental.HistoryListener;
@@ -268,11 +270,7 @@ private int numberOfThreads() {
     final MutationAnalyser analyser = new IncrementalAnalyser(
         new DefaultCodeHistory(this.code, history()), coverageData);
 
-    final WorkerFactory wf = new WorkerFactory(this.baseDir, coverage()
-        .getConfiguration(), mutationConfig,
-        new PercentAndConstantTimeoutStrategy(this.data.getTimeoutFactor(),
-            this.data.getTimeoutConstant()), this.data.isVerbose(), this.data
-            .getClassPath().getLocalClassPath());
+    final WorkerFactory wf = createWorkerFactory(mutationConfig);
 
     MutationGrouper grouper = this.settings.getMutationGrouper().makeFactory(
         this.data.getFreeFormProperties(), this.code,
@@ -288,6 +286,22 @@ private int numberOfThreads() {
     }
 
     return builder.createMutationTestUnits(this.code.getCodeUnderTestNames());
+  }
+
+  private WorkerFactory createWorkerFactory(MutationConfig mutationConfig) {
+    if (this.data.isHigherOrderMutationEnabled()) {
+      return new WorkerFactory<HigherOrderMutationDetails>(this.baseDir, coverage()
+              .getConfiguration(), mutationConfig,
+              new PercentAndConstantTimeoutStrategy(this.data.getTimeoutFactor(),
+                      this.data.getTimeoutConstant()), this.data.isVerbose(), this.data
+              .getClassPath().getLocalClassPath());
+    } else {
+        return new WorkerFactory<MutationDetails>(this.baseDir, coverage()
+              .getConfiguration(), mutationConfig,
+              new PercentAndConstantTimeoutStrategy(this.data.getTimeoutFactor(),
+                      this.data.getTimeoutConstant()), this.data.isVerbose(), this.data
+              .getClassPath().getLocalClassPath());
+    }
   }
 
   private void checkMutationsFound(final List<? extends AnalysisUnit<?, ?>> tus) {

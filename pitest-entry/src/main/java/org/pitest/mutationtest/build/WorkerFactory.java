@@ -1,24 +1,23 @@
 package org.pitest.mutationtest.build;
 
-import static org.pitest.functional.prelude.Prelude.printWith;
-
-import java.io.File;
-import java.util.Collection;
-
 import org.pitest.classinfo.ClassName;
 import org.pitest.functional.SideEffect1;
 import org.pitest.functional.prelude.Prelude;
 import org.pitest.mutationtest.MutationConfig;
 import org.pitest.mutationtest.TimeoutLengthStrategy;
-import org.pitest.mutationtest.engine.MutationDetails;
-import org.pitest.mutationtest.execute.MutationTestProcess;
 import org.pitest.mutationtest.execute.MinionArguments;
+import org.pitest.mutationtest.execute.MutationTestProcess;
 import org.pitest.process.ProcessArgs;
 import org.pitest.testapi.Configuration;
 import org.pitest.util.Log;
 import org.pitest.util.SocketFinder;
 
-public class WorkerFactory {
+import java.io.File;
+import java.util.Collection;
+
+import static org.pitest.functional.prelude.Prelude.printWith;
+
+public class WorkerFactory<T> {
 
   private final String                classPath;
   private final File                  baseDir;
@@ -40,9 +39,9 @@ public class WorkerFactory {
   }
 
   public MutationTestProcess createWorker(
-      final Collection<MutationDetails> remainingMutations,
+      final Collection<T> remainingMutations,
       final Collection<ClassName> testClasses) {
-    final MinionArguments fileArgs = new MinionArguments(remainingMutations,
+    final MinionArguments fileArgs = new MinionArguments<T>(remainingMutations,
         testClasses, this.config.getEngine(), this.timeoutStrategy,
         Log.isVerbose(), this.pitConfig);
 

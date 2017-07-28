@@ -18,8 +18,8 @@ import org.pitest.functional.Option;
 
 public abstract class AbstractMutationResult<T> {
 
-  private final T                      details;
-  private final MutationStatusTestPair status;
+  protected final T                      details;
+  protected final MutationStatusTestPair status;
 
   public AbstractMutationResult(final T md,
                                 final MutationStatusTestPair status) {
@@ -57,19 +57,25 @@ public abstract class AbstractMutationResult<T> {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (!(o instanceof AbstractMutationResult)) return false;
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof AbstractMutationResult)) {
+      return false;
+    }
 
     AbstractMutationResult<?> that = (AbstractMutationResult<?>) o;
 
-    if (!getDetails().equals(that.getDetails())) return false;
-    return getStatus().equals(that.getStatus());
+    if (details != null ? !details.equals(that.details) : that.details != null) {
+      return false;
+    }
+    return status != null ? status.equals(that.status) : that.status == null;
   }
 
   @Override
   public int hashCode() {
-    int result = getDetails().hashCode();
-    result = 31 * result + getStatus().hashCode();
+    int result = details != null ? details.hashCode() : 0;
+    result = 31 * result + (status != null ? status.hashCode() : 0);
     return result;
   }
 

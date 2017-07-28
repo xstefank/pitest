@@ -23,6 +23,8 @@ public class HigherOrderMutationTestBuilder implements TestBuilder<HigherOrderMu
     private MutationConfig mutationConfig;
     private TestBuilder<MutationAnalysisUnit> firstOrderBuilder;
 
+    private WorkerFactory workerFactory;
+
     public HigherOrderMutationTestBuilder(WorkerFactory workerFactory,
                                           MutationAnalyser analyser,
                                           MutationSource mutationSource,
@@ -32,6 +34,8 @@ public class HigherOrderMutationTestBuilder implements TestBuilder<HigherOrderMu
         this.mutationConfig = mutationConfig;
         this.strategyId = strategyId;
         this.firstOrderBuilder = new MutationTestBuilder(workerFactory, analyser, mutationSource, new NotGroupingGrouper());
+
+        this.workerFactory = workerFactory;
     }
 
     @Override
@@ -46,7 +50,7 @@ public class HigherOrderMutationTestBuilder implements TestBuilder<HigherOrderMu
 
         //TODO transfer to MutationAnalysisUnit
         List<HigherOrderMutationAnalysisUnit> analysisUnits = new ArrayList<HigherOrderMutationAnalysisUnit>();
-        analysisUnits.add(new HigherOrderMutationTestUnit(higherOrderMutations));
+        analysisUnits.add(new HigherOrderMutationTestUnit(higherOrderMutations, workerFactory));
 
         return analysisUnits;
     }
