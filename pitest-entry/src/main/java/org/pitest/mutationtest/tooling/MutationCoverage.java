@@ -14,17 +14,6 @@
  */
 package org.pitest.mutationtest.tooling;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import org.pitest.classinfo.ClassByteArraySource;
 import org.pitest.classinfo.ClassInfo;
 import org.pitest.classinfo.ClassName;
@@ -40,24 +29,26 @@ import org.pitest.functional.Option;
 import org.pitest.functional.prelude.Prelude;
 import org.pitest.help.Help;
 import org.pitest.help.PitHelpError;
-import org.pitest.mutationtest.build.HigherOrderMutationTestBuilder;
 import org.pitest.mutationtest.HistoryStore;
 import org.pitest.mutationtest.ListenerArguments;
 import org.pitest.mutationtest.MutationAnalyser;
 import org.pitest.mutationtest.MutationConfig;
+import org.pitest.mutationtest.MutationMetaData;
 import org.pitest.mutationtest.MutationResultListener;
-import org.pitest.mutationtest.build.MutationAnalysisUnit;
+import org.pitest.mutationtest.build.AnalysisUnit;
+import org.pitest.mutationtest.build.HigherOrderMutationTestBuilder;
 import org.pitest.mutationtest.build.MutationGrouper;
 import org.pitest.mutationtest.build.MutationInterceptor;
 import org.pitest.mutationtest.build.MutationSource;
 import org.pitest.mutationtest.build.MutationTestBuilder;
 import org.pitest.mutationtest.build.PercentAndConstantTimeoutStrategy;
+import org.pitest.mutationtest.build.TestBuilder;
 import org.pitest.mutationtest.build.TestPrioritiser;
 import org.pitest.mutationtest.build.WorkerFactory;
 import org.pitest.mutationtest.config.ReportOptions;
 import org.pitest.mutationtest.config.SettingsFactory;
 import org.pitest.mutationtest.engine.MutationEngine;
-import org.pitest.mutationtest.execute.MutationAnalysisExecutor;  
+import org.pitest.mutationtest.execute.MutationAnalysisExecutor;
 import org.pitest.mutationtest.incremental.DefaultCodeHistory;
 import org.pitest.mutationtest.incremental.HistoryListener;
 import org.pitest.mutationtest.incremental.IncrementalAnalyser;
@@ -66,6 +57,17 @@ import org.pitest.mutationtest.statistics.Score;
 import org.pitest.util.Log;
 import org.pitest.util.StringUtil;
 import org.pitest.util.Timings;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class MutationCoverage {
 
@@ -132,7 +134,7 @@ public class MutationCoverage {
     history().initialize();
 
     this.timings.registerStart(Timings.Stage.BUILD_MUTATION_TESTS);
-    final List<MutationAnalysisUnit> tus = buildMutationTests(coverageData,
+    final List<? extends AnalysisUnit<?, MutationMetaData>> tus = buildMutationTests(coverageData,
         engine);
     this.timings.registerEnd(Timings.Stage.BUILD_MUTATION_TESTS);
 
@@ -244,7 +246,8 @@ private int numberOfThreads() {
     }
   }
 
-  private List<MutationAnalysisUnit> buildMutationTests(
+  @SuppressWarnings("unchecked")
+  private <T extends AnalysisUnit<?, ?>> List<T> buildMutationTests(
       final CoverageDatabase coverageData, final MutationEngine engine) {
 
     final MutationConfig mutationConfig = new MutationConfig(engine, coverage()
@@ -274,13 +277,20 @@ private int numberOfThreads() {
     MutationGrouper grouper = this.settings.getMutationGrouper().makeFactory(
         this.data.getFreeFormProperties(), this.code,
         this.data.getNumberOfThreads(), this.data.getMutationUnitSize());
-    final MutationTestBuilder builder = data.isHigherOrderMutationEnabled() ? new HigherOrderMutationTestBuilder(wf, analyser,
-            source, grouper, mutationConfig, data.getHigherOrderMutation()) : new MutationTestBuilder(wf, analyser, source, grouper);
+
+    //TODO can this be cleaner?
+    final TestBuilder<T> builder;
+    if (data.isHigherOrderMutationEnabled()) {
+        builder = (TestBuilder<T>) new HigherOrderMutationTestBuilder(wf, analyser,
+              source, grouper, mutationConfig, data.getHigherOrderMutation());
+    } else {
+        builder = (TestBuilder<T>) new MutationTestBuilder(wf, analyser, source, grouper);
+    }
 
     return builder.createMutationTestUnits(this.code.getCodeUnderTestNames());
   }
 
-  private void checkMutationsFound(final List<MutationAnalysisUnit> tus) {
+  private void checkMutationsFound(final List<? extends AnalysisUnit<?, ?>> tus) {
     if (tus.isEmpty()) {
       if (this.data.shouldFailWhenNoMutations()) {
         throw new PitHelpError(Help.NO_MUTATIONS_FOUND);

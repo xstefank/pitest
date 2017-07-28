@@ -3,6 +3,8 @@ package org.pitest.mutationtest.build;
 import org.pitest.classinfo.ClassName;
 import org.pitest.mutationtest.MutationAnalyser;
 import org.pitest.mutationtest.MutationConfig;
+import org.pitest.mutationtest.build.higherorder.HigherOrderMutationAnalysisUnit;
+import org.pitest.mutationtest.build.higherorder.HigherOrderMutationTestUnit;
 import org.pitest.mutationtest.engine.MutationDetails;
 import org.pitest.mutationtest.engine.hom.HigherOrderMutationDetails;
 import org.pitest.mutationtest.engine.hom.HigherOrderMutationStrategy;
@@ -14,13 +16,12 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-/**
- *
- */
-public class HigherOrderMutationTestBuilder extends MutationTestBuilder {
+
+public class HigherOrderMutationTestBuilder implements TestBuilder<HigherOrderMutationAnalysisUnit> {
 
     private String strategyId;
     private MutationConfig mutationConfig;
+    private TestBuilder<MutationAnalysisUnit> firstOrderBuilder;
 
     public HigherOrderMutationTestBuilder(WorkerFactory workerFactory,
                                           MutationAnalyser analyser,
@@ -28,14 +29,14 @@ public class HigherOrderMutationTestBuilder extends MutationTestBuilder {
                                           MutationGrouper grouper,
                                           MutationConfig mutationConfig,
                                           String strategyId) {
-        super(workerFactory, analyser, mutationSource, new NotGroupingGrouper());
         this.mutationConfig = mutationConfig;
         this.strategyId = strategyId;
+        this.firstOrderBuilder = new MutationTestBuilder(workerFactory, analyser, mutationSource, new NotGroupingGrouper());
     }
 
     @Override
-    public List<MutationAnalysisUnit> createMutationTestUnits(Collection<ClassName> codeClasses) {
-        List<MutationAnalysisUnit> testUnits = super.createMutationTestUnits(codeClasses);
+    public List<HigherOrderMutationAnalysisUnit> createMutationTestUnits(Collection<ClassName> codeClasses) {
+        List<MutationAnalysisUnit> testUnits = firstOrderBuilder.createMutationTestUnits(codeClasses);
         List<MutationDetails> mutations = collectMutations(testUnits);
 
         HigherOrderMutationStrategy strategy = getStrategy(strategyId);
@@ -44,8 +45,10 @@ public class HigherOrderMutationTestBuilder extends MutationTestBuilder {
         Collections.sort(higherOrderMutations, comparator());
 
         //TODO transfer to MutationAnalysisUnit
+        List<HigherOrderMutationAnalysisUnit> analysisUnits = new ArrayList<HigherOrderMutationAnalysisUnit>();
+        analysisUnits.add(new HigherOrderMutationTestUnit(higherOrderMutations));
 
-        return testUnits;
+        return analysisUnits;
     }
 
     private List<MutationDetails> collectMutations(List<MutationAnalysisUnit> testUnits) {

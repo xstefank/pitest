@@ -1,5 +1,14 @@
 package org.pitest.mutationtest.execute;
 
+import org.pitest.functional.FCollection;
+import org.pitest.functional.SideEffect1;
+import org.pitest.mutationtest.ClassMutationResults;
+import org.pitest.mutationtest.MutationMetaData;
+import org.pitest.mutationtest.MutationResultListener;
+import org.pitest.mutationtest.build.AnalysisUnit;
+import org.pitest.util.Log;
+import org.pitest.util.Unchecked;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -9,15 +18,6 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
-
-import org.pitest.functional.FCollection;
-import org.pitest.functional.SideEffect1;
-import org.pitest.mutationtest.ClassMutationResults;
-import org.pitest.mutationtest.MutationMetaData;
-import org.pitest.mutationtest.MutationResultListener;
-import org.pitest.mutationtest.build.MutationAnalysisUnit;
-import org.pitest.util.Log;
-import org.pitest.util.Unchecked;
 
 public class MutationAnalysisExecutor {
 
@@ -35,7 +35,7 @@ public class MutationAnalysisExecutor {
   }
 
   // entry point for mutation testing
-  public void run(final List<MutationAnalysisUnit> testUnits) {
+  public void run(final List<? extends AnalysisUnit<?, MutationMetaData>> testUnits) {
 
     LOG.fine("Running " + testUnits.size() + " units");
 
@@ -44,7 +44,7 @@ public class MutationAnalysisExecutor {
     List<Future<MutationMetaData>> results = new ArrayList<Future<MutationMetaData>>(
         testUnits.size());
 
-    for (final MutationAnalysisUnit unit : testUnits) {
+    for (final AnalysisUnit<?, MutationMetaData> unit : testUnits) {
       results.add(this.executor.submit(unit));
     }
 

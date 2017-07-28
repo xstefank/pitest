@@ -32,7 +32,7 @@ import org.pitest.mutationtest.MutationAnalyser;
 import org.pitest.mutationtest.MutationResult;
 import org.pitest.mutationtest.engine.MutationDetails;
 
-public class MutationTestBuilder {
+public class MutationTestBuilder implements TestBuilder<MutationAnalysisUnit> {
 
   private final MutationSource   mutationSource;
   private final MutationAnalyser analyser;
@@ -49,6 +49,7 @@ public class MutationTestBuilder {
     this.grouper = grouper;
   }
 
+  @Override
   public List<MutationAnalysisUnit> createMutationTestUnits(
       final Collection<ClassName> codeClasses) {
     final List<MutationAnalysisUnit> tus = new ArrayList<MutationAnalysisUnit>();
