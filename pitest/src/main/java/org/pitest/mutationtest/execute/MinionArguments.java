@@ -27,7 +27,7 @@ import java.util.Collection;
  */
 public class MinionArguments<T> {
 
-  final Collection<T> mutations;
+  final Collection<T>               mutations;
   final Collection<ClassName>       testClasses;
   final MutationEngine              engine;
   final TimeoutLengthStrategy       timeoutStrategy;

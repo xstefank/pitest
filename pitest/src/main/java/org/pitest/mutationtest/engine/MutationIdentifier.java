@@ -75,6 +75,10 @@ public final class MutationIdentifier implements Comparable<MutationIdentifier> 
     return this.mutator;
   }
 
+  public List<Integer> getIndexes() {
+    return Collections.unmodifiableList(this.indexes);
+  }
+
   /**
    * Returns the index to the first instruction on which this mutation occurs.
    * This index is specific to how ASM represents the bytecode.
