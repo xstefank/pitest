@@ -21,8 +21,8 @@ public class MutationTestProcess {
       final ProcessArgs processArgs, final MinionArguments arguments) {
     this.process = new WrappingProcess(socket.getLocalPort(), processArgs,
         MutationTestMinion.class);
-    this.thread = new MutationTestCommunicationThread(socket, arguments,
-        new HashMap<MutationIdentifier, MutationStatusTestPair>());
+    this.thread = new MutationTestCommunicationThread<MutationIdentifier>(socket, arguments,
+        new HashMap<MutationIdentifier, MutationStatusTestPair>(), MutationIdentifier.class);
 
   }
 
@@ -31,6 +31,7 @@ public class MutationTestProcess {
     this.process.start();
   }
 
+  @SuppressWarnings("unchecked")
   public void results(final MutationStatusMap allmutations) throws IOException {
 
     for (final MutationDetails each : allmutations.allMutations()) {

@@ -14,24 +14,20 @@
  */
 package org.pitest.mutationtest.execute;
 
-import java.net.ServerSocket;
-import java.util.Map;
-import java.util.logging.Logger;
-
 import org.pitest.functional.SideEffect1;
-import org.pitest.mutationtest.DetectionStatus;
 import org.pitest.mutationtest.MutationStatusTestPair;
-import org.pitest.mutationtest.engine.MutationIdentifier;
 import org.pitest.util.CommunicationThread;
-import org.pitest.util.Id;
-import org.pitest.util.Log;
-import org.pitest.util.ReceiveStrategy;
-import org.pitest.util.SafeDataInputStream;
 import org.pitest.util.SafeDataOutputStream;
 
-public class MutationTestCommunicationThread extends CommunicationThread {
+import java.net.ServerSocket;
+import java.util.Map;
 
-  private static final Logger LOG = Log.getLogger();
+/**
+ *
+ * @param <K> the type of the key for the identification of the mutation
+ */
+public class MutationTestCommunicationThread<K> extends CommunicationThread {
+
 
   private static class SendData implements SideEffect1<SafeDataOutputStream> {
     private final MinionArguments arguments;
@@ -47,52 +43,17 @@ public class MutationTestCommunicationThread extends CommunicationThread {
     }
   }
 
-  private static class Receive implements ReceiveStrategy {
-
-    private final Map<MutationIdentifier, MutationStatusTestPair> idMap;
-
-    Receive(final Map<MutationIdentifier, MutationStatusTestPair> idMap) {
-      this.idMap = idMap;
-    }
-
-    @Override
-    public void apply(final byte control, final SafeDataInputStream is) {
-      switch (control) {
-      case Id.DESCRIBE:
-        handleDescribe(is);
-        break;
-      case Id.REPORT:
-        handleReport(is);
-        break;
-      }
-    }
-
-    private void handleReport(final SafeDataInputStream is) {
-      final MutationIdentifier mutation = is.read(MutationIdentifier.class);
-      final MutationStatusTestPair value = is
-          .read(MutationStatusTestPair.class);
-      this.idMap.put(mutation, value);
-      LOG.fine(mutation + " " + value);
-    }
-
-    private void handleDescribe(final SafeDataInputStream is) {
-      final MutationIdentifier mutation = is.read(MutationIdentifier.class);
-      this.idMap.put(mutation, new MutationStatusTestPair(1,
-          DetectionStatus.STARTED));
-    }
-
-  }
-
-  private final Map<MutationIdentifier, MutationStatusTestPair> idMap;
+  private final Map<K, MutationStatusTestPair> idMap;
 
   public MutationTestCommunicationThread(final ServerSocket socket,
       final MinionArguments arguments,
-      final Map<MutationIdentifier, MutationStatusTestPair> idMap) {
-    super(socket, new SendData(arguments), new Receive(idMap));
+      final Map<K, MutationStatusTestPair> idMap,
+      final Class<K> keyType) {
+    super(socket, new SendData(arguments), new Receive<K>(idMap, keyType));
     this.idMap = idMap;
   }
 
-  public MutationStatusTestPair getStatus(final MutationIdentifier id) {
+  public MutationStatusTestPair getStatus(final K id) {
     return this.idMap.get(id);
   }
 
