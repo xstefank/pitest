@@ -7,6 +7,7 @@ import org.pitest.mutationtest.MutationConfig;
 import org.pitest.mutationtest.TimeoutLengthStrategy;
 import org.pitest.mutationtest.execute.MinionArguments;
 import org.pitest.mutationtest.execute.MutationTestProcess;
+import org.pitest.mutationtest.execute.MutationTestProcessImpl;
 import org.pitest.process.ProcessArgs;
 import org.pitest.testapi.Configuration;
 import org.pitest.util.Log;
@@ -51,7 +52,7 @@ public class WorkerFactory<T> {
         .andStderr(printWith("stderr "));
 
     final SocketFinder sf = new SocketFinder();
-    final MutationTestProcess worker = new MutationTestProcess(
+    final MutationTestProcess worker = new MutationTestProcessImpl(
         sf.getNextAvailableServerSocket(), args, fileArgs);
     return worker;
   }
