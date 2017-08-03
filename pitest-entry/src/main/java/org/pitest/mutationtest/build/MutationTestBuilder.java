@@ -14,14 +14,6 @@
  */
 package org.pitest.mutationtest.build;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import org.pitest.classinfo.ClassName;
 import org.pitest.coverage.TestInfo;
 import org.pitest.functional.F;
@@ -30,13 +22,22 @@ import org.pitest.functional.prelude.Prelude;
 import org.pitest.mutationtest.DetectionStatus;
 import org.pitest.mutationtest.MutationAnalyser;
 import org.pitest.mutationtest.MutationResult;
+import org.pitest.mutationtest.build.factory.WorkerFactory;
 import org.pitest.mutationtest.engine.MutationDetails;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class MutationTestBuilder implements TestBuilder<MutationAnalysisUnit> {
 
   private final MutationSource   mutationSource;
   private final MutationAnalyser analyser;
-  private final WorkerFactory    workerFactory;
+  private final WorkerFactory workerFactory;
   private final MutationGrouper  grouper;
 
   public MutationTestBuilder(final WorkerFactory workerFactory,

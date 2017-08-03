@@ -36,7 +36,9 @@ import org.pitest.mutationtest.MutationConfig;
 import org.pitest.mutationtest.MutationMetaData;
 import org.pitest.mutationtest.MutationResultListener;
 import org.pitest.mutationtest.build.AnalysisUnit;
-import org.pitest.mutationtest.build.HigherOrderMutationTestBuilder;
+import org.pitest.mutationtest.build.factory.WorkerFactory;
+import org.pitest.mutationtest.build.factory.WorkerFactoryArgs;
+import org.pitest.mutationtest.build.higherorder.HigherOrderMutationTestBuilder;
 import org.pitest.mutationtest.build.MutationGrouper;
 import org.pitest.mutationtest.build.MutationInterceptor;
 import org.pitest.mutationtest.build.MutationSource;
@@ -44,12 +46,10 @@ import org.pitest.mutationtest.build.MutationTestBuilder;
 import org.pitest.mutationtest.build.PercentAndConstantTimeoutStrategy;
 import org.pitest.mutationtest.build.TestBuilder;
 import org.pitest.mutationtest.build.TestPrioritiser;
-import org.pitest.mutationtest.build.WorkerFactory;
+import org.pitest.mutationtest.build.factory.FirstOrderWorkerFactory;
 import org.pitest.mutationtest.config.ReportOptions;
 import org.pitest.mutationtest.config.SettingsFactory;
-import org.pitest.mutationtest.engine.MutationDetails;
 import org.pitest.mutationtest.engine.MutationEngine;
-import org.pitest.mutationtest.engine.hom.HigherOrderMutationDetails;
 import org.pitest.mutationtest.execute.MutationAnalysisExecutor;
 import org.pitest.mutationtest.incremental.DefaultCodeHistory;
 import org.pitest.mutationtest.incremental.HistoryListener;
@@ -289,18 +289,20 @@ private int numberOfThreads() {
   }
 
   private WorkerFactory createWorkerFactory(MutationConfig mutationConfig) {
+    WorkerFactoryArgs args = new WorkerFactoryArgs.WorkerFactoryArgsBuilder()
+            .baseDir(this.baseDir)
+            .pitConfig(coverage().getConfiguration())
+            .config(mutationConfig)
+            .timeoutStrategy(new PercentAndConstantTimeoutStrategy(this.data.getTimeoutFactor(),
+                    this.data.getTimeoutConstant()))
+            .verbose(this.data.isVerbose())
+            .classPath(this.data.getClassPath().getLocalClassPath())
+            .build();
+
     if (this.data.isHigherOrderMutationEnabled()) {
-      return new WorkerFactory<HigherOrderMutationDetails>(this.baseDir, coverage()
-              .getConfiguration(), mutationConfig,
-              new PercentAndConstantTimeoutStrategy(this.data.getTimeoutFactor(),
-                      this.data.getTimeoutConstant()), this.data.isVerbose(), this.data
-              .getClassPath().getLocalClassPath());
+        return new FirstOrderWorkerFactory(args);
     } else {
-        return new WorkerFactory<MutationDetails>(this.baseDir, coverage()
-              .getConfiguration(), mutationConfig,
-              new PercentAndConstantTimeoutStrategy(this.data.getTimeoutFactor(),
-                      this.data.getTimeoutConstant()), this.data.isVerbose(), this.data
-              .getClassPath().getLocalClassPath());
+        return new FirstOrderWorkerFactory(args);
     }
   }
 

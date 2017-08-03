@@ -1,4 +1,4 @@
-package org.pitest.mutationtest.engine.hom;
+package org.pitest.mutationtest.engine.higherorder;
 
 import org.pitest.functional.F2;
 import org.pitest.functional.FCollection;

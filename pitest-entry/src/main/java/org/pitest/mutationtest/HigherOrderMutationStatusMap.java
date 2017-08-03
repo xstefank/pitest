@@ -15,7 +15,7 @@
 package org.pitest.mutationtest;
 
 import org.pitest.functional.F;
-import org.pitest.mutationtest.engine.hom.HigherOrderMutationDetails;
+import org.pitest.mutationtest.engine.higherorder.HigherOrderMutationDetails;
 
 import java.util.Map.Entry;
 

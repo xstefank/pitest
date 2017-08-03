@@ -59,7 +59,9 @@ import org.pitest.mutationtest.build.MutationInterceptor;
 import org.pitest.mutationtest.build.MutationSource;
 import org.pitest.mutationtest.build.MutationTestBuilder;
 import org.pitest.mutationtest.build.PercentAndConstantTimeoutStrategy;
-import org.pitest.mutationtest.build.WorkerFactory;
+import org.pitest.mutationtest.build.factory.FirstOrderWorkerFactory;
+import org.pitest.mutationtest.build.factory.WorkerFactory;
+import org.pitest.mutationtest.build.factory.WorkerFactoryArgs;
 import org.pitest.mutationtest.config.DefaultDependencyPathPredicate;
 import org.pitest.mutationtest.config.ReportOptions;
 import org.pitest.mutationtest.engine.MutationEngine;
@@ -379,11 +381,12 @@ public class TestMutationTesting {
     final MutationSource source = new MutationSource(mutationConfig, new DefaultTestPrioritiser(
             coverageData), bas, emptyIntercpetor);
 
-    final WorkerFactory wf = new WorkerFactory(null,
-        coverageOptions.getPitConfig(), mutationConfig,
-        new PercentAndConstantTimeoutStrategy(data.getTimeoutFactor(),
-            data.getTimeoutConstant()), data.isVerbose(), data.getClassPath()
-            .getLocalClassPath());
+    WorkerFactoryArgs args = new WorkerFactoryArgs(data.getClassPath().getLocalClassPath(), null,
+            coverageOptions.getPitConfig(),
+            new PercentAndConstantTimeoutStrategy(data.getTimeoutFactor(),
+                    data.getTimeoutConstant()), data.isVerbose(), mutationConfig);
+
+    final WorkerFactory wf = new FirstOrderWorkerFactory(args);
 
     final MutationTestBuilder builder = new MutationTestBuilder(wf,
         new NullAnalyser(), source, new DefaultGrouper(0));

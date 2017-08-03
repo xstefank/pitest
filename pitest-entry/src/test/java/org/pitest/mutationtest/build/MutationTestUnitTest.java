@@ -18,6 +18,8 @@ import org.pitest.mutationtest.MutationMetaData;
 import org.pitest.mutationtest.MutationResult;
 import org.pitest.mutationtest.MutationStatusTestPair;
 import org.pitest.mutationtest.TimeoutLengthStrategy;
+import org.pitest.mutationtest.build.factory.FirstOrderWorkerFactory;
+import org.pitest.mutationtest.build.factory.WorkerFactoryArgs;
 import org.pitest.mutationtest.engine.MutationDetails;
 import org.pitest.mutationtest.engine.MutationDetailsMother;
 import org.pitest.mutationtest.engine.MutationEngine;
@@ -52,9 +54,13 @@ public class MutationTestUnitTest {
         this.javaAgent));
     this.mutations = new ArrayList<MutationDetails>();
     this.tests = new ArrayList<ClassName>();
+    WorkerFactoryArgs args = new WorkerFactoryArgs.WorkerFactoryArgsBuilder()
+            .baseDir(null).classPath(null).pitConfig(this.config)
+            .config(this.mutationConfig).timeoutStrategy(this.timeout)
+            .verbose(false).build();
     this.testee = new MutationTestUnit(this.mutations, this.tests,
-        new WorkerFactory(null, this.config, this.mutationConfig, this.timeout,
-            false, null));
+        new FirstOrderWorkerFactory(args));
+
   }
 
   @Test

@@ -17,6 +17,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.pitest.classinfo.ClassName;
 import org.pitest.mutationtest.NullAnalyser;
+import org.pitest.mutationtest.build.factory.FirstOrderWorkerFactory;
 import org.pitest.mutationtest.engine.MutationDetails;
 
 public class MutationTestBuilderTest {
@@ -27,7 +28,7 @@ public class MutationTestBuilderTest {
   private MutationSource      source;
 
   @Mock
-  private WorkerFactory       wf;
+  private FirstOrderWorkerFactory wf;
 
   @Before
   public void setUp() {

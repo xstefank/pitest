@@ -3,8 +3,8 @@ package org.pitest.mutationtest.build.higherorder;
 import org.pitest.mutationtest.DetectionStatus;
 import org.pitest.mutationtest.HigherOrderMutationStatusMap;
 import org.pitest.mutationtest.MutationMetaData;
-import org.pitest.mutationtest.build.WorkerFactory;
-import org.pitest.mutationtest.engine.hom.HigherOrderMutationDetails;
+import org.pitest.mutationtest.build.factory.WorkerFactory;
+import org.pitest.mutationtest.engine.higherorder.HigherOrderMutationDetails;
 import org.pitest.util.Log;
 
 import java.io.IOException;

@@ -14,7 +14,7 @@
  */
 package org.pitest.mutationtest;
 
-import org.pitest.mutationtest.engine.hom.HigherOrderMutationDetails;
+import org.pitest.mutationtest.engine.higherorder.HigherOrderMutationDetails;
 
 public final class HigherOrderMutationResult extends AbstractMutationResult<HigherOrderMutationDetails> {
 

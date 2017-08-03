@@ -1,4 +1,4 @@
-package org.pitest.mutationtest.engine.hom;
+package org.pitest.mutationtest.engine.higherorder;
 
 /**
  * Definition of available higher order mutation strategies

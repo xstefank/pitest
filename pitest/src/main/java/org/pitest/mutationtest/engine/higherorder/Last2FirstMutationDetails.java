@@ -1,4 +1,4 @@
-package org.pitest.mutationtest.engine.hom;
+package org.pitest.mutationtest.engine.higherorder;
 
 import org.pitest.classinfo.ByteArraySource;
 import org.pitest.mutationtest.engine.Mutant;

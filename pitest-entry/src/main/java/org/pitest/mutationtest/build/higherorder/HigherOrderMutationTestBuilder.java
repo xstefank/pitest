@@ -1,14 +1,19 @@
-package org.pitest.mutationtest.build;
+package org.pitest.mutationtest.build.higherorder;
 
 import org.pitest.classinfo.ClassName;
 import org.pitest.mutationtest.MutationAnalyser;
 import org.pitest.mutationtest.MutationConfig;
-import org.pitest.mutationtest.build.higherorder.HigherOrderMutationAnalysisUnit;
-import org.pitest.mutationtest.build.higherorder.HigherOrderMutationTestUnit;
+import org.pitest.mutationtest.build.MutationAnalysisUnit;
+import org.pitest.mutationtest.build.MutationGrouper;
+import org.pitest.mutationtest.build.MutationSource;
+import org.pitest.mutationtest.build.MutationTestBuilder;
+import org.pitest.mutationtest.build.NotGroupingGrouper;
+import org.pitest.mutationtest.build.TestBuilder;
+import org.pitest.mutationtest.build.factory.WorkerFactory;
 import org.pitest.mutationtest.engine.MutationDetails;
-import org.pitest.mutationtest.engine.hom.HigherOrderMutationDetails;
-import org.pitest.mutationtest.engine.hom.HigherOrderMutationStrategy;
-import org.pitest.mutationtest.engine.hom.HigherOrderMutationStrategyDefinition;
+import org.pitest.mutationtest.engine.higherorder.HigherOrderMutationDetails;
+import org.pitest.mutationtest.engine.higherorder.HigherOrderMutationStrategy;
+import org.pitest.mutationtest.engine.higherorder.HigherOrderMutationStrategyDefinition;
 
 import java.util.ArrayList;
 import java.util.Collection;

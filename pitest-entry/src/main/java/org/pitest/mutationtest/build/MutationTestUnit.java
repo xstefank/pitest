@@ -14,34 +14,35 @@
  */
 package org.pitest.mutationtest.build;
 
-import java.io.IOException;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.logging.Logger;
-
 import org.pitest.classinfo.ClassName;
 import org.pitest.mutationtest.DetectionStatus;
 import org.pitest.mutationtest.MutationMetaData;
 import org.pitest.mutationtest.MutationStatusMap;
+import org.pitest.mutationtest.build.factory.WorkerFactory;
 import org.pitest.mutationtest.engine.MutationDetails;
 import org.pitest.mutationtest.execute.MutationTestProcess;
 import org.pitest.util.ExitCode;
 import org.pitest.util.Log;
+
+import java.io.IOException;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.logging.Logger;
 
 public class MutationTestUnit implements MutationAnalysisUnit {
 
   private static final Logger               LOG = Log.getLogger();
 
   private final Collection<MutationDetails> availableMutations;
-  private final WorkerFactory               workerFactory;
+  private final WorkerFactory workerFactory;
 
   private final Collection<ClassName>       testClasses;
 
   public MutationTestUnit(final Collection<MutationDetails> availableMutations,
-      final Collection<ClassName> testClasses, final WorkerFactory workerFactor) {
+      final Collection<ClassName> testClasses, final WorkerFactory workerFactory) {
     this.availableMutations = availableMutations;
     this.testClasses = testClasses;
-    this.workerFactory = workerFactor;
+    this.workerFactory = workerFactory;
   }
 
   @Override
@@ -74,7 +75,8 @@ public class MutationTestUnit implements MutationAnalysisUnit {
       runTestInSeperateProcessForMutationRange(mutations);
     }
   }
-  
+
+  @SuppressWarnings("unchecked")
   private void runTestInSeperateProcessForMutationRange(
       final MutationStatusMap mutations) throws IOException,
       InterruptedException {
