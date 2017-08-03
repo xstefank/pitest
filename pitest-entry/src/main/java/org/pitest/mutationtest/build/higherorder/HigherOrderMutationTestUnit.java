@@ -1,10 +1,12 @@
 package org.pitest.mutationtest.build.higherorder;
 
+import org.pitest.classinfo.ClassName;
 import org.pitest.mutationtest.DetectionStatus;
 import org.pitest.mutationtest.HigherOrderMutationStatusMap;
 import org.pitest.mutationtest.MutationMetaData;
 import org.pitest.mutationtest.build.factory.WorkerFactory;
 import org.pitest.mutationtest.engine.higherorder.HigherOrderMutationDetails;
+import org.pitest.mutationtest.execute.MutationTestProcess;
 import org.pitest.util.Log;
 
 import java.io.IOException;
@@ -17,10 +19,13 @@ public class HigherOrderMutationTestUnit implements HigherOrderMutationAnalysisU
     private List<HigherOrderMutationDetails> mutationDetails;
 
     private WorkerFactory workerFactory;
+    private Collection<ClassName> testClasses;
 
     public HigherOrderMutationTestUnit(List<HigherOrderMutationDetails> higherOrderMutations,
+                                       final Collection<ClassName> testClasses,
                                        WorkerFactory workerFactory) {
         this.mutationDetails = higherOrderMutations;
+        this.testClasses = testClasses;
         this.workerFactory = workerFactory;
     }
 
@@ -46,15 +51,16 @@ public class HigherOrderMutationTestUnit implements HigherOrderMutationAnalysisU
         }
     }
 
+    @SuppressWarnings("unchecked")
     private void runTestInSeperateProcessForMutationRange(
             final HigherOrderMutationStatusMap mutations) throws IOException,
             InterruptedException {
 
         final Collection<HigherOrderMutationDetails> remainingMutations = mutations
                 .getUnrunMutations();
-//        final MutationTestProcess worker = this.workerFactory.createWorker(
-//                remainingMutations, this.testClasses);
-//        worker.start();
+        final MutationTestProcess worker = this.workerFactory.createWorker(
+                remainingMutations, this.testClasses);
+        worker.start();
 //
 //        setFirstMutationToStatusOfStartedInCaseMinionFailsAtBoot(mutations,
 //                remainingMutations);

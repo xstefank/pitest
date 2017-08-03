@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 
 
@@ -55,7 +56,7 @@ public class HigherOrderMutationTestBuilder implements TestBuilder<HigherOrderMu
 
         //TODO transfer to MutationAnalysisUnit
         List<HigherOrderMutationAnalysisUnit> analysisUnits = new ArrayList<HigherOrderMutationAnalysisUnit>();
-        analysisUnits.add(new HigherOrderMutationTestUnit(higherOrderMutations, workerFactory));
+        analysisUnits.add(new HigherOrderMutationTestUnit(higherOrderMutations, new HashSet<ClassName>(), workerFactory));
 
         return analysisUnits;
     }

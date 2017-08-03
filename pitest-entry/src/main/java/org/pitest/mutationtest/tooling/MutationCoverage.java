@@ -36,6 +36,7 @@ import org.pitest.mutationtest.MutationConfig;
 import org.pitest.mutationtest.MutationMetaData;
 import org.pitest.mutationtest.MutationResultListener;
 import org.pitest.mutationtest.build.AnalysisUnit;
+import org.pitest.mutationtest.build.factory.HigherOrderWorkerFactory;
 import org.pitest.mutationtest.build.factory.WorkerFactory;
 import org.pitest.mutationtest.build.factory.WorkerFactoryArgs;
 import org.pitest.mutationtest.build.higherorder.HigherOrderMutationTestBuilder;
@@ -300,7 +301,7 @@ private int numberOfThreads() {
             .build();
 
     if (this.data.isHigherOrderMutationEnabled()) {
-        return new FirstOrderWorkerFactory(args);
+        return new HigherOrderWorkerFactory(args);
     } else {
         return new FirstOrderWorkerFactory(args);
     }
