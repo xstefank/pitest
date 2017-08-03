@@ -3,11 +3,10 @@ package org.pitest.mutationtest.execute;
 import org.pitest.mutationtest.MutationStatusMap;
 import org.pitest.mutationtest.MutationStatusTestPair;
 import org.pitest.mutationtest.engine.MutationDetails;
-import org.pitest.mutationtest.engine.MutationIdentifier;
+import org.pitest.mutationtest.engine.higherorder.HigherOrderMutationIdentifier;
 import org.pitest.process.ProcessArgs;
 import org.pitest.process.WrappingProcess;
 import org.pitest.util.ExitCode;
-import org.pitest.util.Log;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -21,15 +20,14 @@ public class HigherOrderMutationTestProcessImpl implements MutationTestProcess {
   public HigherOrderMutationTestProcessImpl(final ServerSocket socket,
                                             final ProcessArgs processArgs, final MinionArguments arguments) {
     this.process = new WrappingProcess(socket.getLocalPort(), processArgs,
-        MutationTestMinion.class);
-    this.thread = new MutationTestCommunicationThread<MutationIdentifier>(socket, arguments,
-        new HashMap<MutationIdentifier, MutationStatusTestPair>(), MutationIdentifier.class);
+        HigherOrderMutationTestMinion.class);
+    this.thread = new MutationTestCommunicationThread<HigherOrderMutationIdentifier>(socket, arguments,
+        new HashMap<HigherOrderMutationIdentifier, MutationStatusTestPair>(), HigherOrderMutationIdentifier.class);
 
   }
 
   @Override
   public void start() throws IOException, InterruptedException {
-    System.out.println("------------------------- start() from HigherOrderMutationTestProcessImpl");
     this.thread.start();
     this.process.start();
   }
