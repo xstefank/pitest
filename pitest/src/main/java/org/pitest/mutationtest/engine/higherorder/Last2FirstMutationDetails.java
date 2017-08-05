@@ -29,6 +29,7 @@ public class Last2FirstMutationDetails extends AbstractHigherOrderMutationDetail
         MutationIdentifier identifier = getFirst().getId();
         Mutant mutant1 = mutater.getMutation(identifier);
 
+        //TODO fix the new mutater creation that contains mutated class from the first pass
         Mutater mutant1Mutater = mutationEngine.createMutator(new ByteArraySource(mutant1.getBytes()));
         Mutant newMutant = mutant1Mutater.getMutation(getSecond().getId());
 
@@ -41,5 +42,10 @@ public class Last2FirstMutationDetails extends AbstractHigherOrderMutationDetail
 
     private MutationDetails getSecond() {
         return getDetailsList().get(1);
+    }
+
+    @Override
+    public String toString() {
+        return String.format("Last2FirstMutationDetails [ %s ]", this.detailsList);
     }
 }

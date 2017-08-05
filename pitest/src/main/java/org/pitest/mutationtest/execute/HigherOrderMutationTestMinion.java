@@ -64,7 +64,7 @@ public class HigherOrderMutationTestMinion {
 
   public void run() {
     try {
-      
+
       final MinionArguments paramsFromParent = this.dis
           .read(MinionArguments.class);
 
@@ -77,13 +77,13 @@ public class HigherOrderMutationTestMinion {
 
       final F3<ClassName, ClassLoader, byte[], Boolean> hotswap = new HotSwap(
           byteSource);
-      
-      final MutationTestWorker worker = new MutationTestWorker(hotswap,
+
+      final HigherOrderMutationTestWorker worker = new HigherOrderMutationTestWorker(hotswap,
           paramsFromParent.engine.createMutator(byteSource), loader);
 
       final List<TestUnit> tests = findTestsForTestClasses(loader,
           paramsFromParent.testClasses, paramsFromParent.pitConfig);
-      
+
       worker.run(paramsFromParent.mutations, this.reporter,
           new TimeOutDecoratedTestSource(paramsFromParent.timeoutStrategy,
               tests, this.reporter));
@@ -100,7 +100,6 @@ public class HigherOrderMutationTestMinion {
   public static void main(final String[] args) {
 
     LOG.log(Level.FINE, "higher order minion started");
-    System.out.println("higher order minion started");
 
     enablePowerMockSupport();
 

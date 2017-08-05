@@ -14,7 +14,7 @@ import java.util.List;
  */
 public abstract class AbstractHigherOrderMutationDetails implements HigherOrderMutationDetails {
 
-    private List<MutationDetails> detailsList;
+    protected List<MutationDetails> detailsList;
     private int size;
 
     public AbstractHigherOrderMutationDetails(List<MutationDetails> detailsList, int size) {
