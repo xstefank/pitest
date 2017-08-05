@@ -64,7 +64,6 @@ public class HigherOrderMutationTestMinion {
 
   public void run() {
     try {
-
       final MinionArguments paramsFromParent = this.dis
           .read(MinionArguments.class);
 
@@ -79,7 +78,7 @@ public class HigherOrderMutationTestMinion {
           byteSource);
 
       final HigherOrderMutationTestWorker worker = new HigherOrderMutationTestWorker(hotswap,
-          paramsFromParent.engine.createMutator(byteSource), loader);
+          paramsFromParent.engine.createMutator(byteSource), loader, paramsFromParent.engine);
 
       final List<TestUnit> tests = findTestsForTestClasses(loader,
           paramsFromParent.testClasses, paramsFromParent.pitConfig);

@@ -7,6 +7,7 @@ import org.pitest.mutationtest.MutationMetaData;
 import org.pitest.mutationtest.build.factory.WorkerFactory;
 import org.pitest.mutationtest.engine.higherorder.HigherOrderMutationDetails;
 import org.pitest.mutationtest.execute.MutationTestProcess;
+import org.pitest.util.ExitCode;
 import org.pitest.util.Log;
 
 import java.io.IOException;
@@ -40,15 +41,17 @@ public class HigherOrderMutationTestUnit implements HigherOrderMutationAnalysisU
 
         runTestsInSeperateProcess(mutationsMap);
 
+
         return null;
     }
 
 
     private void runTestsInSeperateProcess(final HigherOrderMutationStatusMap mutations)
             throws IOException, InterruptedException {
-        while (mutations.hasUnrunMutations()) {
+        //TODO uncomment once reporting is done
+//        while (mutations.hasUnrunMutations()) {
             runTestInSeperateProcessForMutationRange(mutations);
-        }
+//        }
     }
 
     @SuppressWarnings("unchecked")
@@ -65,7 +68,7 @@ public class HigherOrderMutationTestUnit implements HigherOrderMutationAnalysisU
 //        setFirstMutationToStatusOfStartedInCaseMinionFailsAtBoot(mutations,
 //                remainingMutations);
 //
-//        final ExitCode exitCode = waitForMinionToDie(worker);
+        final ExitCode exitCode = waitForMinionToDie(worker);
 //        worker.results(mutations);
 //
 //        correctResultForProcessExitCode(mutations, exitCode);
@@ -79,5 +82,11 @@ public class HigherOrderMutationTestUnit implements HigherOrderMutationAnalysisU
     @Override
     public Collection<HigherOrderMutationDetails> getMutations() {
         return null;
+    }
+
+    private static ExitCode waitForMinionToDie(final MutationTestProcess worker) {
+        final ExitCode exitCode = worker.waitToDie();
+        Log.getLogger().fine("Exit code was - " + exitCode);
+        return exitCode;
     }
 }

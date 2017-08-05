@@ -14,15 +14,20 @@
  */
 package org.pitest.mutationtest.execute;
 
+import org.pitest.classinfo.CachingByteArraySource;
 import org.pitest.classinfo.ClassName;
 import org.pitest.classpath.ClassPath;
+import org.pitest.classpath.ClassloaderByteArraySource;
 import org.pitest.functional.F3;
 import org.pitest.mutationtest.DetectionStatus;
 import org.pitest.mutationtest.MutationStatusTestPair;
 import org.pitest.mutationtest.engine.Mutant;
 import org.pitest.mutationtest.engine.Mutater;
 import org.pitest.mutationtest.engine.MutationDetails;
+import org.pitest.mutationtest.engine.MutationEngine;
+import org.pitest.mutationtest.engine.MutationIdentifier;
 import org.pitest.mutationtest.engine.higherorder.HigherOrderMutationDetails;
+import org.pitest.mutationtest.mocksupport.JavassistInterceptor;
 import org.pitest.testapi.TestResult;
 import org.pitest.testapi.TestUnit;
 import org.pitest.testapi.execute.Container;
@@ -38,6 +43,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -53,16 +59,19 @@ public class HigherOrderMutationTestWorker {
   private static final boolean                              DEBUG = LOG
       .isLoggable(Level.FINE);
 
-  private final Mutater defaultMutater;
-  private final ClassLoader                                 loader;
+  private Mutater mutater;
+  private ClassLoader                                 loader;
   private final F3<ClassName, ClassLoader, byte[], Boolean> hotswap;
+  private MutationEngine engine;
 
   public HigherOrderMutationTestWorker(
           final F3<ClassName, ClassLoader, byte[], Boolean> hotswap,
-          final Mutater defaultMutater, final ClassLoader loader) {
+          final Mutater mutater, final ClassLoader loader,
+          MutationEngine engine) {
     this.loader = loader;
-    this.defaultMutater = defaultMutater;
+    this.mutater = mutater;
     this.hotswap = hotswap;
+    this.engine = engine;
   }
 
   protected void run(final Collection<HigherOrderMutationDetails> range, final Reporter r,
@@ -83,35 +92,46 @@ public class HigherOrderMutationTestWorker {
   }
 
   private void processMutation(final Reporter r,
+                               final TimeOutDecoratedTestSource testSource,
+                               final HigherOrderMutationDetails mutationDetails) throws IOException {
+      Iterator<MutationDetails> detailsIterator = mutationDetails.getDetailsList().iterator();
+      while (detailsIterator.hasNext()) {
+          processIndividualMutation(r, testSource, detailsIterator.next());
+      }
+
+  }
+
+  private void processIndividualMutation(final Reporter r,
       final TimeOutDecoratedTestSource testSource,
-      final HigherOrderMutationDetails mutationDetails) throws IOException {
+      final MutationDetails mutationDetails) throws IOException {
 
-    //TODO process higher order mutation
-//    final MutationIdentifier mutationId = mutationDetails.getId();
-    final Mutant mutatedClass = mutationDetails.createMutant(this.defaultMutater);
+    if (DEBUG) {
+        LOG.fine("-- running child mutation " + mutationDetails);
+    }
 
-    System.out.println("----- mutated class " + mutatedClass);
+    final MutationIdentifier mutationId = mutationDetails.getId();
+    final Mutant mutatedClass = this.mutater.getMutation(mutationId);
 
     // For the benefit of mocking frameworks such as PowerMock
     // mess with the internals of Javassist so our mutated class
     // bytes are returned
-//    JavassistInterceptor.setMutant(mutatedClass);
-//
-//    if (DEBUG) {
-//      LOG.fine("mutating method " + mutatedClass.getDetails().getMethod());
-//    }
-//    final List<TestUnit> relevantTests = testSource
-//        .translateTests(mutationDetails.getTestsInOrder());
-//
-//    r.describe(mutationId);
-//
-//    final MutationStatusTestPair mutationDetected = handleMutation(
-//        mutationDetails, mutatedClass, relevantTests);
-//
-//    r.report(mutationId, mutationDetected);
-//    if (DEBUG) {
-//      LOG.fine("Mutation " + mutationId + " detected = " + mutationDetected);
-//    }
+    JavassistInterceptor.setMutant(mutatedClass);
+
+    if (DEBUG) {
+      LOG.fine("mutating method " + mutatedClass.getDetails().getMethod());
+    }
+    final List<TestUnit> relevantTests = testSource
+        .translateTests(mutationDetails.getTestsInOrder());
+
+    r.describe(mutationId);
+
+    final MutationStatusTestPair mutationDetected = handleMutation(
+        mutationDetails, mutatedClass, relevantTests);
+
+    r.report(mutationId, mutationDetected);
+    if (DEBUG) {
+      LOG.fine("Mutation " + mutationId + " detected = " + mutationDetected);
+    }
   }
 
   private MutationStatusTestPair handleMutation(
@@ -140,16 +160,20 @@ public class HigherOrderMutationTestWorker {
           + mutatedClass.getDetails().getMethod());
     }
 
-    final ClassLoader activeloader = pickClassLoaderForMutant(mutationId);
-    final Container c = createNewContainer(activeloader);
+    //TODO is it using the right class loader?
+    this.loader = pickClassLoaderForMutant(mutationId);
+    final Container c = createNewContainer(loader);
     final long t0 = System.currentTimeMillis();
-    if (this.hotswap.apply(mutationId.getClassName(), activeloader,
+    if (this.hotswap.apply(mutationId.getClassName(), loader,
         mutatedClass.getBytes())) {
       if (DEBUG) {
         LOG.fine("replaced class with mutant in "
             + (System.currentTimeMillis() - t0) + " ms");
       }
       mutationDetected = doTestsDetectMutation(c, relevantTests);
+
+      this.mutater = engine.createMutator(new CachingByteArraySource(new ClassloaderByteArraySource(loader), 12));
+
     } else {
       LOG.warning("Mutation " + mutationId + " was not viable ");
       mutationDetected = new MutationStatusTestPair(0,
@@ -186,7 +210,7 @@ public class HigherOrderMutationTestWorker {
 
   @Override
   public String toString() {
-    return "HigherOrderMutationTestWorker [defaultMutater=" + this.defaultMutater + ", loader="
+    return "MutationTestWorker [mutater=" + this.mutater + ", loader="
         + this.loader + ", hotswap=" + this.hotswap + "]";
   }
 
