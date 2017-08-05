@@ -26,7 +26,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Uniquely identifies a mutation
+ * Uniquely identifies a higher order mutation
  */
 public final class HigherOrderMutationIdentifier implements Comparable<HigherOrderMutationIdentifier> {
 
@@ -40,6 +40,10 @@ public final class HigherOrderMutationIdentifier implements Comparable<HigherOrd
         this.locations = computeLocations();
         this.indexes = computeIndexes();
         this.mutators = computeMutators();
+    }
+
+    public List<MutationIdentifier> getIdentifiers() {
+        return Collections.unmodifiableList(this.identifiers);
     }
 
     /**

@@ -1,9 +1,9 @@
 package org.pitest.mutationtest.engine.higherorder;
 
+import org.pitest.mutationtest.engine.MethodName;
 import org.pitest.mutationtest.engine.Mutant;
 import org.pitest.mutationtest.engine.Mutater;
 import org.pitest.mutationtest.engine.MutationDetails;
-import org.pitest.mutationtest.engine.MutationIdentifier;
 
 import java.util.Collection;
 import java.util.List;
@@ -17,8 +17,10 @@ public interface HigherOrderMutationDetails {
 
     int getSize();
 
-    Collection<MutationIdentifier> getId();
+    HigherOrderMutationIdentifier getId();
 
     Mutant createMutant(Mutater mutater);
+
+    Collection<MethodName> getMethods();
 
 }

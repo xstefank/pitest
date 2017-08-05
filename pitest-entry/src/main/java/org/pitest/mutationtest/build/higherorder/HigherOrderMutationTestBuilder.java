@@ -54,7 +54,6 @@ public class HigherOrderMutationTestBuilder implements TestBuilder<HigherOrderMu
 
         Collections.sort(higherOrderMutations, comparator());
 
-        //TODO transfer to MutationAnalysisUnit
         List<HigherOrderMutationAnalysisUnit> analysisUnits = new ArrayList<HigherOrderMutationAnalysisUnit>();
         analysisUnits.add(new HigherOrderMutationTestUnit(higherOrderMutations, new HashSet<ClassName>(), workerFactory));
 
@@ -80,11 +79,13 @@ public class HigherOrderMutationTestBuilder implements TestBuilder<HigherOrderMu
         return strategyDefinition.getStrategy();
     }
 
+    //TODO some better algorithm?
     private Comparator<HigherOrderMutationDetails> comparator() {
         return new Comparator<HigherOrderMutationDetails>() {
             @Override
             public int compare(HigherOrderMutationDetails o1, HigherOrderMutationDetails o2) {
-                return o1.getId().iterator().next().compareTo(o2.getId().iterator().next());
+                return o1.getId().getIdentifiers().iterator().next()
+                        .compareTo(o2.getId().getIdentifiers().iterator().next());
             }
         };
     }

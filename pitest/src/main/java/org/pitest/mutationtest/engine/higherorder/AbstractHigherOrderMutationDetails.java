@@ -1,5 +1,6 @@
 package org.pitest.mutationtest.engine.higherorder;
 
+import org.pitest.functional.F;
 import org.pitest.functional.F2;
 import org.pitest.functional.FCollection;
 import org.pitest.mutationtest.engine.MutationDetails;
@@ -31,19 +32,20 @@ public abstract class AbstractHigherOrderMutationDetails implements HigherOrderM
         return size;
     }
 
-    public Collection<MutationIdentifier> getId() {
-        return FCollection.fold(detailsToId(), new ArrayList<MutationIdentifier>(), detailsList);
+    public HigherOrderMutationIdentifier getId() {
+        return new HigherOrderMutationIdentifier(FCollection.map(detailsList, detailsToId()));
     }
 
-    private static F2<Collection<MutationIdentifier>, MutationDetails, Collection<MutationIdentifier>> detailsToId() {
+    private F<MutationDetails, MutationIdentifier> detailsToId() {
 
-        return new F2<Collection<MutationIdentifier>, MutationDetails, Collection<MutationIdentifier>>() {
+        return new F<MutationDetails, MutationIdentifier>() {
             @Override
-            public Collection<MutationIdentifier> apply(Collection<MutationIdentifier> mutationIdentifiers, MutationDetails details) {
-                mutationIdentifiers.add(details.getId());
-                return mutationIdentifiers;
+            public MutationIdentifier apply(MutationDetails details) {
+                return details.getId();
             }
         };
 
     }
+
+
 }
