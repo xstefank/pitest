@@ -80,7 +80,7 @@ public final class HigherOrderMutationIdentifier implements Comparable<HigherOrd
 
     @Override
     public String toString() {
-        return "MutationIdentifier [locations=" + this.locations + ", indexes="
+        return "HigherOrderMutationIdentifier [locations=" + this.locations + ", indexes="
                 + this.indexes + ", mutators=" + this.indexes + "]";
     }
 

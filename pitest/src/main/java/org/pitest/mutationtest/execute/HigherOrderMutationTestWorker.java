@@ -18,6 +18,7 @@ import org.pitest.classinfo.CachingByteArraySource;
 import org.pitest.classinfo.ClassName;
 import org.pitest.classpath.ClassPath;
 import org.pitest.classpath.ClassloaderByteArraySource;
+import org.pitest.coverage.TestInfo;
 import org.pitest.functional.F3;
 import org.pitest.mutationtest.DetectionStatus;
 import org.pitest.mutationtest.MutationStatusTestPair;
@@ -93,15 +94,64 @@ public class HigherOrderMutationTestWorker {
 
   private void processMutation(final Reporter r,
                                final TimeOutDecoratedTestSource testSource,
-                               final HigherOrderMutationDetails mutationDetails) throws IOException {
-      Iterator<MutationDetails> detailsIterator = mutationDetails.getDetailsList().iterator();
-      while (detailsIterator.hasNext()) {
-          processIndividualMutation(r, testSource, detailsIterator.next());
-      }
+                               final HigherOrderMutationDetails higherOrderMutationDetails) throws IOException {
+    Iterator<MutationDetails> detailsIterator = higherOrderMutationDetails.getDetailsList().iterator();
+    List<TestInfo> tests = new ArrayList<TestInfo>();
+    boolean isViable = true;
 
+    while (detailsIterator.hasNext() && isViable) {
+        MutationDetails mutationDetails = detailsIterator.next();
+        isViable = processIndividualMutation(r, testSource, mutationDetails);
+        addRelevantTests(tests, mutationDetails);
+    }
+
+    if (!isViable) {
+      LOG.warning("Higher order mutation " + higherOrderMutationDetails + " is not viable");
+      r.report(null, new MutationStatusTestPair(0, DetectionStatus.NON_VIABLE));
+      return;
+    }
+
+    List<TestUnit> relevantTests = testSource.translateTests(tests);
+    final MutationStatusTestPair statusTestPair = handleTests(higherOrderMutationDetails, relevantTests);
+
+    //TODO collective report for higher order mutant
+
+    if (DEBUG) {
+      LOG.fine("Higher order mutation " + higherOrderMutationDetails.getId() + " detected = " + statusTestPair);
+    }
   }
 
-  private void processIndividualMutation(final Reporter r,
+  private MutationStatusTestPair handleTests(HigherOrderMutationDetails higherOrderMutationDetails,
+                                             List<TestUnit> relevantTests) {
+    final MutationStatusTestPair mutationDetected;
+    if ((relevantTests == null) || relevantTests.isEmpty()) {
+      LOG.info("No test coverage for mutation  " + higherOrderMutationDetails.getId() + " in "
+          + higherOrderMutationDetails.getMethods());
+      mutationDetected = new MutationStatusTestPair(0,
+          DetectionStatus.RUN_ERROR);
+    } else {
+      mutationDetected = handleTestExecution(higherOrderMutationDetails, relevantTests);
+    }
+
+    return mutationDetected;
+  }
+
+  private MutationStatusTestPair handleTestExecution(HigherOrderMutationDetails higherOrderMutationDetails, List<TestUnit> relevantTests) {
+    if (DEBUG) {
+      LOG.fine("" + relevantTests.size() + " relevant test for "
+          + higherOrderMutationDetails.getMethods());
+    }
+
+    final Container c = createNewContainer(loader);
+    return doTestsDetectMutation(c, relevantTests);
+  }
+
+
+  private void addRelevantTests(List<TestInfo> tests, MutationDetails mutationDetails) {
+    tests.addAll(mutationDetails.getTestsInOrder());
+  }
+
+  private boolean processIndividualMutation(final Reporter r,
       final TimeOutDecoratedTestSource testSource,
       final MutationDetails mutationDetails) throws IOException {
 
@@ -120,49 +170,34 @@ public class HigherOrderMutationTestWorker {
     if (DEBUG) {
       LOG.fine("mutating method " + mutatedClass.getDetails().getMethod());
     }
-    final List<TestUnit> relevantTests = testSource
-        .translateTests(mutationDetails.getTestsInOrder());
 
     r.describe(mutationId);
 
-    final MutationStatusTestPair mutationDetected = handleMutation(
-        mutationDetails, mutatedClass, relevantTests);
+    final boolean mutationSuccess = handleMutation(
+        mutationDetails, mutatedClass);
 
-    r.report(mutationId, mutationDetected);
-    if (DEBUG) {
-      LOG.fine("Mutation " + mutationId + " detected = " + mutationDetected);
+    if (!mutationSuccess) {
+        return false;
     }
+
+//    r.report(mutationId, mutationDetected);
+//    if (DEBUG) {
+//      LOG.fine("Mutation " + mutationId + " detected = " + mutationDetected);
+//    }
+
+    return true;
   }
 
-  private MutationStatusTestPair handleMutation(
-      final MutationDetails mutationId, final Mutant mutatedClass,
-      final List<TestUnit> relevantTests) {
-    MutationStatusTestPair mutationDetected;
-    if ((relevantTests == null) || relevantTests.isEmpty()) {
-      LOG.info("No test coverage for mutation  " + mutationId + " in "
-          + mutatedClass.getDetails().getMethod());
-      mutationDetected = new MutationStatusTestPair(0,
-          DetectionStatus.RUN_ERROR);
-    } else {
-      mutationDetected = handleCoveredMutation(mutationId, mutatedClass,
-          relevantTests);
-
-    }
-    return mutationDetected;
+  private boolean handleMutation(
+      final MutationDetails mutationId, final Mutant mutatedClass) {
+    return handleCoveredMutation(mutationId, mutatedClass);
   }
 
-  private MutationStatusTestPair handleCoveredMutation(
-      final MutationDetails mutationId, final Mutant mutatedClass,
-      final List<TestUnit> relevantTests) {
-    MutationStatusTestPair mutationDetected;
-    if (DEBUG) {
-      LOG.fine("" + relevantTests.size() + " relevant test for "
-          + mutatedClass.getDetails().getMethod());
-    }
+  private boolean handleCoveredMutation(
+      final MutationDetails mutationId, final Mutant mutatedClass) {
 
     //TODO is it using the right class loader?
     this.loader = pickClassLoaderForMutant(mutationId);
-    final Container c = createNewContainer(loader);
     final long t0 = System.currentTimeMillis();
     if (this.hotswap.apply(mutationId.getClassName(), loader,
         mutatedClass.getBytes())) {
@@ -170,16 +205,16 @@ public class HigherOrderMutationTestWorker {
         LOG.fine("replaced class with mutant in "
             + (System.currentTimeMillis() - t0) + " ms");
       }
-      mutationDetected = doTestsDetectMutation(c, relevantTests);
 
       this.mutater = engine.createMutator(new CachingByteArraySource(new ClassloaderByteArraySource(loader), 12));
-
+      return true;
     } else {
       LOG.warning("Mutation " + mutationId + " was not viable ");
-      mutationDetected = new MutationStatusTestPair(0,
-          DetectionStatus.NON_VIABLE);
+//      mutationDetected = new MutationStatusTestPair(0,
+//          DetectionStatus.NON_VIABLE);
+      return false;
     }
-    return mutationDetected;
+
   }
 
   private static Container createNewContainer(final ClassLoader activeloader) {
@@ -244,5 +279,7 @@ public class HigherOrderMutationTestWorker {
   private List<TestUnit> createEarlyExitTestGroup(final List<TestUnit> tests) {
     return Collections.<TestUnit> singletonList(new MultipleTestGroup(tests));
   }
+
+
 
 }

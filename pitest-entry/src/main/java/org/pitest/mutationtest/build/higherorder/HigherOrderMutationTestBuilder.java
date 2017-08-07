@@ -1,6 +1,10 @@
 package org.pitest.mutationtest.build.higherorder;
 
 import org.pitest.classinfo.ClassName;
+import org.pitest.coverage.TestInfo;
+import org.pitest.functional.F;
+import org.pitest.functional.F2;
+import org.pitest.functional.FCollection;
 import org.pitest.mutationtest.MutationAnalyser;
 import org.pitest.mutationtest.MutationConfig;
 import org.pitest.mutationtest.build.MutationAnalysisUnit;
@@ -21,6 +25,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 
 public class HigherOrderMutationTestBuilder implements TestBuilder<HigherOrderMutationAnalysisUnit> {
@@ -55,9 +60,41 @@ public class HigherOrderMutationTestBuilder implements TestBuilder<HigherOrderMu
         Collections.sort(higherOrderMutations, comparator());
 
         List<HigherOrderMutationAnalysisUnit> analysisUnits = new ArrayList<HigherOrderMutationAnalysisUnit>();
-        analysisUnits.add(new HigherOrderMutationTestUnit(higherOrderMutations, new HashSet<ClassName>(), workerFactory));
+
+        //TODO grouping for higher order mutations?
+        analysisUnits.add(createUnanalysedHigherOrderUnit(higherOrderMutations));
 
         return analysisUnits;
+    }
+
+    private HigherOrderMutationAnalysisUnit createUnanalysedHigherOrderUnit(List<HigherOrderMutationDetails> higherOrderMutations) {
+        final Set<ClassName> classNames = new HashSet<ClassName>();
+        FCollection.flatMapTo(higherOrderMutations, higherDetailsToTestClasses(), classNames);
+
+        return new HigherOrderMutationTestUnit(higherOrderMutations, classNames, workerFactory);
+
+    }
+
+    private F<HigherOrderMutationDetails, ? extends Iterable<ClassName>> higherDetailsToTestClasses() {
+        return new F<HigherOrderMutationDetails, Iterable<ClassName>>() {
+            @Override
+            public Iterable<ClassName> apply(HigherOrderMutationDetails higherOrderMutationDetails) {
+                return FCollection.map(collectTests(higherOrderMutationDetails), TestInfo.toDefiningClassName());
+            }
+        };
+    }
+
+    private Iterable<? extends TestInfo> collectTests(HigherOrderMutationDetails higherOrderMutationDetails) {
+        return FCollection.fold(detailsToTestInfo(), new ArrayList<TestInfo>(), higherOrderMutationDetails.getDetailsList());
+    }
+
+    private F2<List<TestInfo>, MutationDetails, List<TestInfo>> detailsToTestInfo() {
+        return new F2<List<TestInfo>, MutationDetails, List<TestInfo>>() {
+            @Override
+            public List<TestInfo> apply(List<TestInfo> testInfos, MutationDetails details) {
+                return details.getTestsInOrder();
+            }
+        };
     }
 
     private List<MutationDetails> collectMutations(List<MutationAnalysisUnit> testUnits) {
