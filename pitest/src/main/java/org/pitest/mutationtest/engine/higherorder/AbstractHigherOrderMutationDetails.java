@@ -1,7 +1,6 @@
 package org.pitest.mutationtest.engine.higherorder;
 
 import org.pitest.functional.F;
-import org.pitest.functional.F2;
 import org.pitest.functional.FCollection;
 import org.pitest.mutationtest.engine.MethodName;
 import org.pitest.mutationtest.engine.MutationDetails;
