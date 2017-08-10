@@ -155,10 +155,6 @@ public class HigherOrderMutationTestWorker {
       final TimeOutDecoratedTestSource testSource,
       final MutationDetails mutationDetails) throws IOException {
 
-    if (DEBUG) {
-        LOG.fine("-- running child mutation " + mutationDetails);
-    }
-
     final MutationIdentifier mutationId = mutationDetails.getId();
     final Mutant mutatedClass = this.mutater.getMutation(mutationId);
 

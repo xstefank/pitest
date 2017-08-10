@@ -14,7 +14,7 @@ public interface HigherOrderMutationStrategy {
     /**
      * Processes first order mutants to create a list of higher order mutants
      * @param firstOrderMutants FOM list or null
-     * @return list of {@link HigherOrderMutant} or null
+     * @return list of {@link HigherOrderMutationDetails} or null
      */
     List<HigherOrderMutationDetails> processMutations(List<MutationDetails> firstOrderMutants, MutationEngine mutationEngine);
 
