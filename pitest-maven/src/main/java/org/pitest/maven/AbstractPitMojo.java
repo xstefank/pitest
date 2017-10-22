@@ -30,7 +30,7 @@ import uk.org.lidalia.sysoutslf4j.context.SysOutOverSLF4J;
 public class AbstractPitMojo extends AbstractMojo {
 
   private final Predicate<MavenProject> notEmptyProject;
-  
+
   protected final Predicate<Artifact> filter;
 
   protected final PluginServices      plugins;
@@ -86,17 +86,17 @@ public class AbstractPitMojo extends AbstractMojo {
    */
   @Parameter(property = "historyInputFile")
   private File                        historyInputFile;
-  
+
   /**
    * Convenience flag to read and write history to a local temp file.
-   * 
+   *
    * Setting this flag is the equivalent to calling maven with -DhistoryInputFile=file -DhistoryOutputFile=file
-   * 
+   *
    * Where file is a file named [groupid][artifactid][version]_pitest_history.bin in the temp directory
-   * 
+   *
    */
   @Parameter(defaultValue = "false", property = "withHistory")
-  private boolean                     withHistory;  
+  private boolean                     withHistory;
 
   /**
    * Maximum distance to look from test to class. Relevant when mutating static
@@ -129,7 +129,7 @@ public class AbstractPitMojo extends AbstractMojo {
    */
   @Parameter(property = "mutators")
   private ArrayList<String>           mutators;
-  
+
   /**
    * Mutation operators to apply
    */
@@ -144,7 +144,7 @@ public class AbstractPitMojo extends AbstractMojo {
   private float                       timeoutFactor;
 
   /**
-   * Constant factor to allow for timeouts 
+   * Constant factor to allow for timeouts
    */
   @Parameter(defaultValue = "3000", property = "timeoutConstant")
   private long                        timeoutConstant;
@@ -199,7 +199,7 @@ public class AbstractPitMojo extends AbstractMojo {
 
   /**
    * Maximum number of mutations to include in a single analysis unit.
-   * 
+   *
    * If set to 1 will analyse very slowly, but with strong (jvm per mutant)
    * isolation.
    *
@@ -224,7 +224,7 @@ public class AbstractPitMojo extends AbstractMojo {
    */
   @Parameter(defaultValue = "-1", property = "maxSurviving")
   private int                         maxSurviving = -1;
-    
+
   /**
    * Line coverage threshold at which to fail build
    */
@@ -259,9 +259,9 @@ public class AbstractPitMojo extends AbstractMojo {
    */
   @Parameter(property = "classpathDependencyExcludes")
   private ArrayList<String>           classpathDependencyExcludes;
-  
+
   /**
-   * 
+   *
    */
   @Parameter(property = "excludedRunners")
   private ArrayList<String>           excludedRunners;
@@ -320,6 +320,12 @@ public class AbstractPitMojo extends AbstractMojo {
    */
   @Parameter(property = "plugin.artifactMap", readonly = true, required = true)
   private Map<String, Artifact>       pluginArtifactMap;
+
+  /**
+   * Higher order mutation strategy
+   */
+  @Parameter(property = "higherOrderMutation")
+  private String                      higherOrderMutation;
 
   protected final GoalStrategy        goalStrategy;
 
@@ -401,7 +407,7 @@ public class AbstractPitMojo extends AbstractMojo {
           + this.mutationThreshold);
     }
   }
-  
+
   private void throwErrorIfMoreThanMaximumSurvivors(final MutationStatistics result)
       throws MojoFailureException {
     if ((this.maxSurviving >= 0)
@@ -602,9 +608,13 @@ public class AbstractPitMojo extends AbstractMojo {
   public ArrayList<String> getExcludedRunners() {
     return excludedRunners;
   }
-  
+
   public ArrayList<String> getFeatures() {
     return features;
+  }
+
+  public String getHigherOrderMutation() {
+    return higherOrderMutation;
   }
 
   static class RunDecision {
@@ -623,5 +633,5 @@ public class AbstractPitMojo extends AbstractMojo {
     }
   }
 
-  
+
 }

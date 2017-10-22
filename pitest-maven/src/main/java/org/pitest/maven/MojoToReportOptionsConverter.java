@@ -139,11 +139,13 @@ public class MojoToReportOptionsConverter {
     data.setDetectInlinedCode(this.mojo.isDetectInlinedCode());
 
     determineHistory(data);
-    
+
     data.setExportLineCoverage(this.mojo.isExportLineCoverage());
     data.setMutationEngine(this.mojo.getMutationEngine());
     data.setJavaExecutable(this.mojo.getJavaExecutable());
     data.setFreeFormProperties(createPluginProperties());
+
+    data.setHigherOrderMutation(this.mojo.getHigherOrderMutation());
 
     return data;
   }
@@ -173,7 +175,7 @@ public class MojoToReportOptionsConverter {
       data.setHistoryOutputLocation(historyFile);
     }
   }
-  
+
   private ReportOptions updateFromSurefire(ReportOptions option) {
     Collection<Plugin> plugins = lookupPlugin("org.apache.maven.plugins:maven-surefire-plugin");
     if (!this.mojo.isParseSurefireConfig()) {
@@ -254,8 +256,8 @@ public class MojoToReportOptionsConverter {
       } else {
         return Collections.emptyList();
       }
-  }  
-  
+  }
+
   private Collection<Predicate<String>> determineTargetClasses() {
     return useConfiguredTargetClassesOrFindOccupiedPackages(this.mojo.getTargetClasses());
   }
@@ -269,8 +271,8 @@ public class MojoToReportOptionsConverter {
       return FCollection.map(filters, Glob.toGlobPredicate());
     }
   }
-  
-  
+
+
   private Collection<String> findOccupiedPackages() {
     String outputDirName = this.mojo.getProject().getBuild()
         .getOutputDirectory();
@@ -284,7 +286,7 @@ public class MojoToReportOptionsConverter {
     }
     return Collections.emptyList();
   }
-  
+
   private static F<String,String> classToPackageGlob() {
     return new F<String,String>() {
       @Override
